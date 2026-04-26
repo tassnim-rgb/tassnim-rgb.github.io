@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tassnim Belaghit — Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@300;400;500&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0c14;
+      --surface:   #111220;
+      --surface2:  #171828;
+      --ink:       #e8e6f0;
+      --muted:     #8b89a0;
+      --faint:     #2a2b3d;
+      --gold:      #c9a84c;
+      --gold-dim:  #6b5626;
+      --teal:      #4ecdc4;
+      --teal-dim:  #1a4f4d;
+      --violet:    #9b72cf;
+      --violet-dim:#3d2a5e;
+      --rose:      #e06c9f;
+      --rose-dim:  #5a1f3c;
+      --border:    rgba(255,255,255,0.07);
+      --serif:     'Playfair Display', Georgia, serif;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Lato', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    #math-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      opacity: 0.18;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 3.5rem;
+      background: rgba(11,12,20,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono); font-size: 0.75rem;
+      letter-spacing: 0.15em; color: var(--gold);
+      text-decoration: none; text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+
+    #hero {
+      position: relative; z-index: 1;
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 9rem 3.5rem 5rem;
+    }
+    .hero-inner { max-width: 820px; }
+
+    .hero-equation {
+      font-family: var(--mono); font-size: 0.72rem;
+      letter-spacing: 0.08em; color: var(--teal);
+      margin-bottom: 2rem; opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.1s;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(3.2rem, 7vw, 5.8rem);
+      font-weight: 700; line-height: 1.05; margin-bottom: 0.3rem;
+      opacity: 0; animation: fadeUp 0.9s ease forwards 0.3s;
+    }
+    h1 .name-first { color: var(--ink); }
+    h1 .name-last  { color: var(--gold); font-style: italic; }
+
+    .hero-title {
+      font-family: var(--mono); font-size: 0.8rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--violet);
+      margin-bottom: 1.8rem; opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.5s;
+    }
+    .hero-bio {
+      font-size: 1.05rem; color: var(--muted); max-width: 560px;
+      font-weight: 300; line-height: 1.9; opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.7s;
+    }
+    .hero-cta {
+      margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.9s ease forwards 0.9s;
+    }
+    .btn {
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.85rem 2rem; text-decoration: none;
+      border: 1px solid; cursor: pointer; transition: all 0.25s;
+    }
+    .btn-primary { background: var(--teal); color: #0b0c14; border-color: var(--teal); }
+    .btn-primary:hover { background: transparent; color: var(--teal); }
+    .btn-outline { background: transparent; color: var(--ink); border-color: var(--faint); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .float-formula {
+      position: absolute; font-family: var(--mono); font-size: 0.7rem;
+      color: var(--faint); pointer-events: none; white-space: nowrap;
+      animation: floatDrift linear infinite;
+    }
+
+    section { position: relative; z-index: 1; padding: 6rem 3.5rem; }
+    .section-label {
+      font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);
+      margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.8rem;
+    }
+    .section-label::before { content: '∂'; font-size: 1rem; opacity: 0.7; }
+    h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 400; line-height: 1.2; margin-bottom: 2.5rem;
+    }
+    h2 em { font-style: italic; color: var(--gold); }
+
+    #about { border-top: 1px solid var(--border); }
+    .about-wrap { display: grid; grid-template-columns: 1.4fr 1fr; gap: 5rem; max-width: 980px; }
+    .about-text p { font-size: 1rem; color: var(--muted); font-weight: 300; margin-bottom: 1rem; line-height: 1.9; }
+
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 1.5rem; position: relative; overflow: hidden;
+    }
+    .stat-box::before {
+      content: attr(data-symbol); position: absolute; right: 1rem; bottom: 0.5rem;
+      font-family: var(--serif); font-size: 2.5rem; color: var(--faint);
+      font-style: italic; line-height: 1;
+    }
+    .stat-num { font-family: var(--serif); font-size: 2.2rem; font-weight: 700; color: var(--teal); line-height: 1; }
+    .stat-label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 0.4rem; }
+
+    #skills { background: var(--surface); border-top: 1px solid var(--border); }
+    .skills-wrap { max-width: 980px; }
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .skill-card { background: var(--surface2); padding: 1.8rem; transition: background 0.2s; }
+    .skill-card:hover { background: var(--surface); }
+    .skill-cat { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+    .skill-cat.c-teal   { color: var(--teal); }
+    .skill-cat.c-violet { color: var(--violet); }
+    .skill-cat.c-gold   { color: var(--gold); }
+    .skill-cat.c-rose   { color: var(--rose); }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag { font-family: var(--mono); font-size: 0.6rem; padding: 0.2rem 0.55rem; letter-spacing: 0.06em; border: 1px solid; }
+    .tag.t-teal   { border-color: var(--teal-dim);   color: var(--teal); }
+    .tag.t-violet { border-color: var(--violet-dim); color: var(--violet); }
+    .tag.t-gold   { border-color: var(--gold-dim);   color: var(--gold); }
+    .tag.t-rose   { border-color: var(--rose-dim);   color: var(--rose); }
+
+    #research { border-top: 1px solid var(--border); }
+    .timeline { max-width: 800px; display: flex; flex-direction: column; }
+    .tl-item { display: grid; grid-template-columns: 120px 1fr; gap: 2rem; padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+    .tl-item:first-child { padding-top: 0; }
+    .tl-date { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.06em; color: var(--muted); padding-top: 0.3rem; text-align: right; line-height: 1.6; }
+    .tl-body { position: relative; padding-left: 1.8rem; }
+    .tl-body::before { content: ''; position: absolute; left: 0; top: 0.5rem; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+    .tl-body::after { content: ''; position: absolute; left: 2.5px; top: 1.1rem; width: 1px; bottom: -2.5rem; background: var(--faint); }
+    .tl-item:last-child .tl-body::after { display: none; }
+    .tl-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .tl-org  { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; color: var(--violet); text-transform: uppercase; margin-bottom: 0.8rem; }
+    .tl-desc { font-size: 0.9rem; color: var(--muted); font-weight: 300; line-height: 1.8; }
+
+    #projects { background: var(--surface); border-top: 1px solid var(--border); }
+    .proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); max-width: 980px; }
+    .proj-card { background: var(--surface2); padding: 2rem; position: relative; overflow: hidden; transition: background 0.25s; }
+    .proj-card:hover { background: var(--bg); }
+    .proj-card-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .acc-teal   { background: var(--teal); }
+    .acc-violet { background: var(--violet); }
+    .acc-gold   { background: var(--gold); }
+    .acc-rose   { background: var(--rose); }
+    .proj-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.8rem; }
+    .proj-tag.c-teal   { color: var(--teal); }
+    .proj-tag.c-violet { color: var(--violet); }
+    .proj-tag.c-gold   { color: var(--gold); }
+    .proj-tag.c-rose   { color: var(--rose); }
+    .proj-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.7rem; line-height: 1.3; }
+    .proj-desc  { font-size: 0.85rem; color: var(--muted); font-weight: 300; line-height: 1.75; }
+
+    .eq-strip { position: relative; z-index: 1; overflow: hidden; background: var(--violet-dim); border-top: 1px solid rgba(155,114,207,0.25); border-bottom: 1px solid rgba(155,114,207,0.25); padding: 1.2rem 0; }
+    .eq-ticker { display: flex; gap: 4rem; white-space: nowrap; animation: ticker 30s linear infinite; font-family: var(--mono); font-size: 0.75rem; color: rgba(155,114,207,0.7); letter-spacing: 0.08em; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    #contact { border-top: 1px solid var(--border); text-align: center; }
+    #contact .section-label { justify-content: center; }
+    .contact-sub { font-size: 1rem; color: var(--muted); font-weight: 300; margin-bottom: 2.5rem; }
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .contact-links a { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--faint); padding: 0.75rem 1.6rem; transition: all 0.2s; }
+    .contact-links a:hover { border-color: var(--teal); color: var(--teal); }
+
+    footer { position: relative; z-index: 1; padding: 1.8rem 3.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; }
+    .footer-formula { color: var(--faint); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.75s ease, transform 0.75s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    @keyframes floatDrift { 0% { transform: translateY(0px); opacity: 0.3; } 50% { transform: translateY(-18px); opacity: 0.7; } 100% { transform: translateY(0px); opacity: 0.3; } }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      #hero, section { padding: 5rem 1.5rem 3rem; }
+      .about-wrap { grid-template-columns: 1fr; gap: 2.5rem; }
+      .tl-item { grid-template-columns: 1fr; gap: 0.4rem; }
+      .tl-date { text-align: left; }
+      footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="math-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="#hero">T. Belaghit</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <span class="float-formula" style="top:22%;left:68%;animation-duration:7s;animation-delay:0s;">∇²ψ = 0</span>
+  <span class="float-formula" style="top:65%;left:75%;animation-duration:9s;animation-delay:1s;">σ(x)=1/(1+e⁻ˣ)</span>
+  <span class="float-formula" style="top:38%;left:82%;animation-duration:6s;animation-delay:2s;">∂u/∂t = Δu</span>
+  <span class="float-formula" style="top:80%;left:62%;animation-duration:8s;animation-delay:0.5s;">dX = μdt + σdW</span>
+  <span class="float-formula" style="top:15%;left:55%;animation-duration:10s;animation-delay:3s;">L(θ)=∑log p(xᵢ|θ)</span>
+
+  <div class="hero-inner">
+    <p class="hero-equation">∫ mathematics · deep_learning · modeling  dσ</p>
+    <h1>
+      <span class="name-first">Belaghit</span><br/>
+      <span class="name-last">Tassnim Alla</span>
+    </h1>
+    <p class="hero-title">Modeling &amp; Simulation Student · NHSM · Algiers</p>
+    <p class="hero-bio">
+      Fourth-year Applied Mathematics student researching deep learning, computer vision,
+      and mathematical modeling. I build pipelines where rigorous theory meets real-world data
+      from retinal OCT image analysis to neuronal dynamical systems.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">View Projects</a>
+      <a href="#contact" class="btn btn-outline">Get in Touch</a>
+    </div>
+  </div>
+</section>
+
+<div class="eq-strip" aria-hidden="true">
+  <div class="eq-ticker">
+    <span>dX_t = μ(X_t,t)dt + σ(X_t,t)dW_t</span>
+    <span>∇²u = ∂u/∂t</span>
+    <span>L(θ) = -∑ yᵢ log(ŷᵢ)</span>
+    <span>Hopf bifurcation · saddle-node · SNIC · homoclinic</span>
+    <span>U-Net · ResNet-34 · SwinIR · DnCNN · BM3D</span>
+    <span>argmin f(x) s.t. g(x) ≤ 0</span>
+    <span>∂f/∂wᵢⱼ = δⱼ · aᵢ</span>
+    <span>dX_t = μ(X_t,t)dt + σ(X_t,t)dW_t</span>
+    <span>∇²u = ∂u/∂t</span>
+    <span>L(θ) = -∑ yᵢ log(ŷᵢ)</span>
+    <span>Hopf bifurcation · saddle-node · SNIC · homoclinic</span>
+    <span>U-Net · ResNet-34 · SwinIR · DnCNN · BM3D</span>
+    <span>argmin f(x) s.t. g(x) ≤ 0</span>
+    <span>∂f/∂wᵢⱼ = δⱼ · aᵢ</span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="section-label">About</div>
+  <div class="about-wrap reveal">
+    <div class="about-text">
+      <h2>Where <em>equations</em><br/>meet machines</h2>
+      <p>I'm a fourth-year Applied Mathematics student at the National Higher School of Mathematics in Algiers, on the Modeling &amp; Simulation track which a program that blends rigorous mathematical theory with computational practice.</p>
+      <p>My work sits at the intersection of deep learning, scientific computing, and dynamical systems. I'm drawn to problems where clean mathematics underpins complex real-world behaviour whether segmenting medical images or modeling a neuron's bifurcation landscape.</p>
+      <p>Currently studying Convex Optimization, Stochastic Differential Equations, Digital Image Analysis, and Mathematical Biology. Graduating 2026.</p>
+    </div>
+    <div>
+      <div class="stat-row">
+        <div class="stat-box" data-symbol="∑"><div class="stat-num">10+</div><div class="stat-label">Projects</div></div>
+        <div class="stat-box" data-symbol="∫"><div class="stat-num">2</div><div class="stat-label">Internships</div></div>
+        <div class="stat-box" data-symbol="λ"><div class="stat-num">3</div><div class="stat-label">Languages</div></div>
+        <div class="stat-box" data-symbol="∞"><div class="stat-num">2026</div><div class="stat-label">Graduation</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="section-label">Skills</div>
+  <div class="skills-wrap">
+    <h2>Toolkit &amp; <em>Methods</em></h2>
+    <div class="skill-grid reveal">
+      <div class="skill-card">
+        <div class="skill-cat c-teal">Programming &amp; AI</div>
+        <div class="tags">
+          <span class="tag t-teal">Python</span><span class="tag t-teal">NumPy</span><span class="tag t-teal">PyTorch</span>
+          <span class="tag t-teal">scikit-learn</span><span class="tag t-teal">OpenCV</span><span class="tag t-teal">MATLAB</span>
+          <span class="tag t-teal">Octave</span><span class="tag t-teal">LaTeX</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat c-violet">Deep Learning &amp; Vision</div>
+        <div class="tags">
+          <span class="tag t-violet">CNN</span><span class="tag t-violet">U-Net</span><span class="tag t-violet">ResNet</span>
+          <span class="tag t-violet">SwinIR</span><span class="tag t-violet">DnCNN</span><span class="tag t-violet">BM3D</span>
+          <span class="tag t-violet">YOLO</span><span class="tag t-violet">Faster R-CNN</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat c-gold">Mathematical Modeling</div>
+        <div class="tags">
+          <span class="tag t-gold">Convex Optimization</span><span class="tag t-gold">SDEs</span>
+          <span class="tag t-gold">Dynamical Systems</span><span class="tag t-gold">Bifurcation Analysis</span>
+          <span class="tag t-gold">Numerical Methods</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat c-rose">Scientific Computing</div>
+        <div class="tags">
+          <span class="tag t-rose">Simulation</span><span class="tag t-rose">Statistical Modeling</span>
+          <span class="tag t-rose">Data Visualization</span><span class="tag t-rose">Signal Processing</span>
+          <span class="tag t-rose">Technical Writing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="research">
+  <div class="section-label">Research &amp; Experience</div>
+  <div class="timeline">
+    <div class="tl-item reveal">
+      <div class="tl-date">Late 2025 –<br/>Early 2026</div>
+      <div class="tl-body">
+        <div class="tl-name">Research Intern — HRP Detection in OCT Retinal Images</div>
+        <div class="tl-org">SiriusNET · Algiers</div>
+        <p class="tl-desc">Built a deep learning pipeline for automatic detection of hyperreflective points (HRPs) in OCT retinal images. Implemented MSCM encoder blocks with channel attention inside a U-Net variant; diagnosed and resolved a degenerate Dice loss collapse in a ResNet-34 baseline. Designed a two-phase training strategy (weighted BCE warmup → Focal-Dice fine-tuning) with ×8 test-time augmentation. Evaluated YOLO and Faster R-CNN alternatives before settling on the U-Net for pixel-level localization accuracy.</p>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">2024</div>
+      <div class="tl-body">
+        <div class="tl-name">Intern — Environmental Modeling &amp; Data Analysis</div>
+        <div class="tl-org">SEAAL &amp; ONM · Algeria</div>
+        <p class="tl-desc">Hands-on exposure to environmental modeling, water systems, and operational data analysis in industrial settings.</p>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">Sept 2022 –<br/>Present</div>
+      <div class="tl-body">
+        <div class="tl-name">Engineering Degree + Master — Applied Mathematics</div>
+        <div class="tl-org">NHSM · National Higher School of Mathematics · Algiers</div>
+        <p class="tl-desc">Modeling &amp; Simulation track. Current semester (S8): Convex Optimization, Stochastic Differential Equations, Digital Image Analysis &amp; Processing, AI Algorithms, Mathematical Biology &amp; Dynamical Systems. Graduating 2026.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section-label">Projects</div>
+  <h2>Selected <em>Work</em></h2>
+  <div class="proj-grid reveal">
+    <div class="proj-card"><div class="proj-card-accent acc-teal"></div><div class="proj-tag c-teal">Deep Learning · Medical Imaging</div><div class="proj-title">Brain MRI Denoising — Comparative Study</div><p class="proj-desc">Compared BM3D, DnCNN, and SwinIR across Gaussian, Poisson, and speckle noise. Implemented SwinIR procedurally via OrderedDict; debugged OOM errors and spatial mismatches. Full LaTeX report and Kaggle-ready notebooks.</p></div>
+    <div class="proj-card"><div class="proj-card-accent acc-violet"></div><div class="proj-tag c-violet">Math Biology · Dynamical Systems</div><div class="proj-title">Hodgkin-Huxley → FitzHugh-Nagumo: Neuronal Excitability</div><p class="proj-desc">Five-phase research project: HH well-posedness, Tikhonov reduction, FHN bifurcation analysis (Hopf, saddle-node, SNIC, homoclinic), Python simulations, stochastic extensions. Validated against Allen Cell Types &amp; DANDI Archive data.</p></div>
+    <div class="proj-card"><div class="proj-card-accent acc-gold"></div><div class="proj-tag c-gold">Computer Vision · Signal Processing</div><div class="proj-title">Pyramidal Representations &amp; Video Magnification</div><p class="proj-desc">Gaussian/Laplacian pyramids, image blending, compression, and Eulerian Video Magnification in procedural Python. Extended to 3D reconstruction and perspective analysis.</p></div>
+    <div class="proj-card"><div class="proj-card-accent acc-rose"></div><div class="proj-tag c-rose">Deep Learning · Classification</div><div class="proj-title">Pneumonia Detection (ResNet CNN)</div><p class="proj-desc">X-ray classification achieving high diagnostic accuracy using ResNet variants with custom preprocessing and augmentation strategies.</p></div>
+    <div class="proj-card"><div class="proj-card-accent acc-teal"></div><div class="proj-tag c-teal">Dimensionality Reduction</div><div class="proj-title">Customer Profiling — PCA / CA / MCA</div><p class="proj-desc">Applied PCA, Correspondence Analysis, and Multiple Correspondence Analysis on retail datasets for customer segmentation and behavioural profiling.</p></div>
+    <div class="proj-card"><div class="proj-card-accent acc-violet"></div><div class="proj-tag c-violet">Physics Simulation</div><div class="proj-title">N-Body &amp; Seismic Simulations</div><p class="proj-desc">Gravitational N-body simulation of the Poincaré problem in Python. Separate mass-spring-damper model of building structural response to earthquake excitation.</p></div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-label">Contact</div>
+  <h2>Let's <em>connect</em></h2>
+  <p class="contact-sub">Open to research collaborations, internships, and interesting problems.</p>
+  <div class="contact-links">
+    <a href="mailto:tassnim.belaghit@nhsm.edu.dz">Email</a>
+    <a href="https://www.linkedin.com/in/belaghit-tassnim-alla-211t1/" target="_blank">LinkedIn</a>
+    <a href="https://github.com/tassnim-rgb" target="_blank">GitHub</a>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Belaghit Tassnim Alla</span>
+  <span class="footer-formula">∇ · F = ρ/ε₀</span>
+  <span>Algiers, Algeria</span>
+</footer>
+
+<script>
+(function(){
+  const canvas = document.getElementById('math-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [], t = 0;
+  const symbols = ['∇','∂','∫','∑','λ','σ','μ','Δ','π','∞','θ','φ','ψ','ξ','∈','⊗'];
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initNodes(){
+    nodes = [];
+    const count = Math.floor((W*H)/22000);
+    for(let i=0;i<count;i++){
+      nodes.push({
+        x: Math.random()*W, y: Math.random()*H,
+        vx: (Math.random()-0.5)*0.18, vy: (Math.random()-0.5)*0.18,
+        sym: symbols[Math.floor(Math.random()*symbols.length)],
+        size: 10 + Math.random()*8,
+        opacity: 0.15 + Math.random()*0.25
+      });
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    ctx.strokeStyle = 'rgba(78,205,196,0.06)';
+    ctx.lineWidth = 0.5;
+    const gS = 60;
+    for(let x=0;x<W;x+=gS){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+    for(let y=0;y<H;y+=gS){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+    const cx = W/2, cy = H/2;
+    ctx.strokeStyle = 'rgba(201,168,76,0.1)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(155,114,207,0.12)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      const y = cy + Math.sin((x/W)*4*Math.PI + t*0.4)*60;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(78,205,196,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      const y = cy + Math.cos((x/W)*6*Math.PI + t*0.25)*40;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    nodes.forEach(n=>{
+      ctx.fillStyle = 'rgba(201,168,76,'+(n.opacity*(0.6+0.4*Math.sin(t*0.5+n.x)))+')';
+      ctx.font = n.size+'px serif';
+      ctx.fillText(n.sym, n.x, n.y);
+      n.x += n.vx; n.y += n.vy;
+      if(n.x<0) n.x=W; if(n.x>W) n.x=0;
+      if(n.y<0) n.y=H; if(n.y>H) n.y=0;
+    });
+
+    t += 0.012;
+    requestAnimationFrame(draw);
+  }
+
+  resize(); initNodes(); draw();
+  window.addEventListener('resize',()=>{ resize(); initNodes(); });
+})();
+
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); }});
+},{ threshold: 0.1 });
+reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
